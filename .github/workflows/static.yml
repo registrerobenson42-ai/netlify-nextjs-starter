@@ -1,0 +1,386 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haitian Nation Group S.A - Akèy</title>
+    <style>
+        /* --- ESTIL JENERAL --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f7f6; color: #333; line-height: 1.6; }
+        
+        /* --- BA NAVIGASYON ANLÈ NÈT (TOP BAR) --- */
+        .top-bar {
+            background-color: #00153B; 
+            color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; font-size: 0.95rem;
+        }
+        .lang-switcher select { padding: 5px; font-size: 0.9rem; border-radius: 3px; border: 1px solid #ccc; font-weight: bold; cursor: pointer; }
+        .auth-links button { background: none; border: none; color: white; font-weight: bold; cursor: pointer; margin-left: 15px; font-size: 1rem; transition: color 0.3s; }
+        .auth-links button:hover { color: #E00000; }
+        .auth-links .btn-enskri { background: #E00000; padding: 5px 15px; border-radius: 5px; }
+        .auth-links .btn-enskri:hover { background: white; color: #E00000; }
+
+        /* --- AN TÈT (HEADER) --- */
+        header { background-color: #00335B; color: white; text-align: center; padding: 30px 20px 20px; border-bottom: 5px solid #E00000; }
+        .drapo-img { width: 120px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); margin-bottom: 15px; }
+        header h1 { font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        header p { font-size: 1.2rem; max-width: 800px; margin: 10px auto 0; font-style: italic; }
+        .mesaj-an-kourajman { color: #E00000; font-weight: bold; }
+
+        /* --- SISTÈM KATAB (FOLDERS) --- */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .folder-card {
+            background: white; border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 8px solid #00205B; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .folder-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); border-top-color: #E00000; }
+        .folder-icon { font-size: 4rem; margin-bottom: 15px; }
+        .folder-card h2 { color: #00205B; font-size: 1.5rem; }
+
+        /* --- ANNDAN KATAB YO (Paj Kache yo) --- */
+        .folder-content { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 4px solid #E00000; }
+        .btn-tounen { background: #333; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 1rem; }
+        .btn-tounen:hover { background: #E00000; }
+        
+        .folder-content h2.tit-katab { text-align: center; color: #00205B; margin-bottom: 30px; font-size: 2rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+        /* --- ESTIL POU ELEMAN ANNDAN KATAB YO --- */
+        .grid-eleman { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card-eleman { background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 5px solid #00205B; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-eleman h3 { color: #E00000; margin-bottom: 10px; font-size: 1.2rem; }
+        .card-eleman p { font-size: 0.95rem; color: #444; margin-bottom: 15px; }
+        .presidan-img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #00205B;}
+        
+        /* --- ESTIL ESPESYAL --- */
+        .info-leta { background-color: #00153B; color: white; text-align: left; padding: 25px; border-radius: 8px; margin-bottom: 30px; border-left: 8px solid #E00000; }
+        .info-leta h3 { color: #FFF; text-align: center; font-size: 1.6rem; margin-bottom: 15px; text-transform: uppercase; }
+        .info-leta p { font-size: 1.05rem; margin-bottom: 15px; line-height: 1.8; color: #e3f2fd; }
+        
+        .info-sitwayen { background-color: #f0f4f8; color: #333; text-align: left; padding: 25px; border-radius: 8px; margin-bottom: 30px; border-left: 8px solid #27ae60; }
+        .info-sitwayen h3 { color: #27ae60; text-align: center; font-size: 1.6rem; margin-bottom: 15px; text-transform: uppercase; }
+        .info-sitwayen p { font-size: 1.05rem; margin-bottom: 15px; line-height: 1.8; }
+
+        .tit-seksyon { color: #00205B; font-size: 1.6rem; margin: 40px 0 20px; border-bottom: 2px solid #E00000; padding-bottom: 10px; display: inline-block;}
+        .separatè { border: 0; height: 1px; background: #ddd; margin: 40px 0; }
+
+        .btn-submit { background-color: #00205B; color: white; padding: 12px 20px; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; margin-top: 10px; }
+        .btn-submit:hover { background-color: #E00000; }
+
+        /* --- BWAT MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-box { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; text-align: center; border-top: 5px solid #E00000; }
+        .modal-box h2 { color: #00205B; margin-bottom: 20px; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: #aaa; border: none; background: none; }
+        .close-btn:hover { color: #E00000; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        .switch-link { margin-top: 15px; font-size: 0.9rem; color: #666; }
+        .switch-link a { color: #00205B; font-weight: bold; text-decoration: none; cursor: pointer; }
+
+        /* --- CHAT --- */
+        .chat-btn { position: fixed; bottom: 20px; right: 20px; background: #E00000; color: white; border: none; padding: 15px 25px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
+        .chat-window { position: fixed; bottom: 85px; right: 20px; width: 320px; background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); display: none; flex-direction: column; overflow: hidden; z-index: 1000; border: 2px solid #00205B; }
+        .chat-header { background: #00205B; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        .chat-header button { background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem; }
+        .chat-body { padding: 15px; height: 250px; overflow-y: auto; background: #f9f9f9; }
+        .chat-footer { display: flex; padding: 10px; border-top: 1px solid #ddd; }
+        .chat-footer input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .chat-footer button { background: #00205B; color: white; border: none; padding: 10px; margin-left: 5px; border-radius: 5px; cursor: pointer; }
+
+        footer { background: #222; color: white; text-align: center; padding: 20px; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="lang-switcher">
+            <label for="langSelect" style="margin-right: 5px;">🌐 Lang:</label>
+            <select id="langSelect" onchange="chanjeLang()">
+                <option value="ht">Kreyòl Ayisyen</option>
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+        <div class="auth-links">
+            <button onclick="louvriModal('koneksyon')">Konekte</button>
+            <button onclick="louvriModal('enskripsyon')" class="btn-enskri">Kreye Kont</button>
+        </div>
+    </div>
+
+    <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/56/Flag_of_Haiti.svg" alt="Drapo Ayiti" class="drapo-img">
+        <h1>Haitian Nation Group S.A</h1>
+        <p><span class="mesaj-an-kourajman">"Depiw se Haitien ou oblije rete dyanm, se rezon pouw toujou kanpe devan tout obstak... Viv la repiblik!"</span></p>
+    </header>
+
+    <div class="container">
+        
+        <div id="meni-katab" class="folder-grid">
+            <div class="folder-card" onclick="louvriKatab('katab-otorite')"><div class="folder-icon">🏛️</div><h2>Leta & Gouvènman</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-touris')"><div class="folder-icon">🌴</div><h2>Touris Nasyonal</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-relijyon')"><div class="folder-icon">🕊️</div><h2>Relijyon & Kwayans</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-kilti')"><div class="folder-icon">🎸</div><h2>Kilti & Atis</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-gastronomi')"><div class="folder-icon">🍲</div><h2>Gastronomi</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-komes')"><div class="folder-icon">💼</div><h2>Komès & Envestisman</h2></div>
+            <div class="folder-card" onclick="louvriKatab('katab-dokiman')"><div class="folder-icon">🛂</div><h2>Sèvis Dokiman</h2></div>
+        </div>
+
+        <div id="katab-otorite" class="folder-content">
+            <button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen nan Katab yo</button>
+            <h2 class="tit-katab">🏛️ Estrikti Nasyon an: Leta & Gouvènman</h2>
+            
+            <div class="info-leta">
+                <h3>💡 Fè Diferans lan: Leta vs Gouvènman</h3>
+                <p><strong>LETA A :</strong> Leta se Nasyon an. Se tè a, popilasyon an, ak lwa yo ansanm. Leta pa janm chanje, li pèmanan.</p>
+                <p><strong>GOUVÈNMAN AN :</strong> Ekip pèp la chwazi pou jere kòb Leta a pou yon tan limite.</p>
+            </div>
+
+            <h3 class="tit-seksyon">👔 Espas Gouvènman an</h3>
+            <div class="grid-eleman">
+                <div class="card-eleman"><h3>MENFP</h3><p>Ministè Edikasyon Nasyonal.</p></div>
+                <div class="card-eleman"><h3>MSPP</h3><p>Ministè Sante Piblik.</p></div>
+                <div class="card-eleman"><h3>MTPTC</h3><p>Ministè Travo Piblik.</p></div>
+            </div>
+            
+            <hr class="separatè">
+
+            <h3 class="tit-seksyon">🏛️ Espas Leta a</h3>
+            <div class="grid-eleman">
+                <div class="card-eleman" style="border-left-color: #27ae60;"><h3 style="color: #27ae60;">⚖️ Jistis</h3><p>Kou Kasasyon, Lakou Dapèl.</p></div>
+                <div class="card-eleman" style="border-left-color: #27ae60;"><h3 style="color: #27ae60;">🚓 PNH</h3><p>Lapolis Nasyonal D'Ayiti.</p></div>
+            </div>
+        </div>
+
+        <div id="katab-touris" class="folder-content"><button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button><h2 class="tit-katab">🌴 Touris Nasyonal</h2><p>Eksplore Sitadèl ak bèl plaj Ayiti yo.</p></div>
+        <div id="katab-relijyon" class="folder-content"><button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button><h2 class="tit-katab">🕊️ Relijyon</h2><p>Vodou, Katolik, Pwotestan ansanm nan tolerans.</p></div>
+        <div id="katab-kilti" class="folder-content"><button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button><h2 class="tit-katab">🎸 Kilti & Atis</h2><p>Eksplore mizik ak atis natif natal.</p></div>
+        <div id="katab-gastronomi" class="folder-content"><button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button><h2 class="tit-katab">🍲 Gastronomi</h2><p>Soup Joumou, Diri ak Lalo, Bwason Mabi.</p></div>
+        <div id="katab-komes" class="folder-content"><button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button><h2 class="tit-katab">💼 Komès & Envestisman</h2><p>Espas pou dyaspora a envesti an Ayiti.</p></div>
+        
+        <div id="katab-dokiman" class="folder-content">
+            <button class="btn-tounen" onclick="femenKatab()">⬅️ Tounen</button>
+            <h2 class="tit-katab">🛂 Sèvis Dokiman Ofisyèl</h2>
+            <div class="info-sitwayen">
+                <h3>🇭🇹 Devwa yon Sitwayen Ayisyen</h3>
+                <p>Nan nenpòt ki peyi ou ye, deklare timoun ou ki fenk fèt nan Anbasad oubyen Konsila a. Sa montre respè pou valè idantite nou.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="authModal" class="modal-overlay">
+        
+        <div id="box-koneksyon" class="modal-box">
+            <button class="close-btn" onclick="femenModalAuth()">X</button>
+            <h2>Konekte sou Kont ou</h2>
+            <div class="form-group">
+                <label>Imèl ou :</label>
+                <input type="email" id="imel-konekte" placeholder="adrès@imel.com">
+            </div>
+            <div class="form-group">
+                <label>Modpas ou :</label>
+                <input type="password" id="modpas-konekte" placeholder="***">
+            </div>
+            <button class="btn-submit" id="btn-konekte">Konekte</button>
+            <p class="switch-link">Ou poko gen kont? <a onclick="chanjeForm('enskripsyon')">Kreye youn isit la</a></p>
+        </div>
+        
+        <div id="box-enskripsyon" class="modal-box" style="display: none;">
+            <button class="close-btn" onclick="femenModalAuth()">X</button>
+            <h2>Kreye yon Kont Nèf</h2>
+            <div class="form-group">
+                <label>Imèl ou :</label>
+                <input type="email" id="imel-enskri" placeholder="adrès@imel.com">
+            </div>
+            <div class="form-group">
+                <label>Modpas :</label>
+                <input type="password" id="modpas-enskri" placeholder="Kreye modpas...">
+            </div>
+            <button class="btn-submit" id="btn-enskri" style="background-color: #E00000;">Enskri kounye a</button>
+            <p class="switch-link">Ou gentan gen kont? <a onclick="chanjeForm('koneksyon')">Konekte isit la</a></p>
+        </div>
+    </div>
+
+    <button id="chatBtn" class="chat-btn">💬 Asistans</button>
+    <div id="chatWindow" class="chat-window">
+        <div class="chat-header">Sèvis Kliyan <button id="closeChat">X</button></div>
+        <div class="chat-body" id="chatBody">
+            <div style="background:#e3f2fd; padding:10px; border-radius:5px; margin-bottom:10px;"><strong>Ajan HNG:</strong> Bonswa! Kijan nou ka ede w jodi a?</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ekri mesaj ou a...">
+            <button onclick="voyeMesaj()">Voye</button>
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 Haitian Nation Group S.A. Pou Ayiti, Pou Nou Tout.</p></footer>
+
+    <script>
+        function louvriKatab(idKatab) {
+            document.getElementById('meni-katab').style.display = 'none';
+            document.querySelectorAll('.folder-content').forEach(k => k.style.display = 'none');
+            document.getElementById(idKatab).style.display = 'block';
+        }
+
+        function femenKatab() {
+            document.querySelectorAll('.folder-content').forEach(k => k.style.display = 'none');
+            document.getElementById('meni-katab').style.display = 'grid';
+        }
+
+        function louvriModal(kiPati) {
+            document.getElementById('authModal').style.display = 'flex';
+            chanjeForm(kiPati);
+        }
+        function femenModalAuth() { document.getElementById('authModal').style.display = 'none'; }
+        
+        function chanjeForm(kiPati) {
+            if(kiPati === 'koneksyon') {
+                document.getElementById('box-koneksyon').style.display = 'block'; 
+                document.getElementById('box-enskripsyon').style.display = 'none';
+            } else {
+                document.getElementById('box-koneksyon').style.display = 'none'; 
+                document.getElementById('box-enskripsyon').style.display = 'block';
+            }
+        }
+
+        function chanjeLang() {
+            alert("Ou chwazi lang : " + document.getElementById("langSelect").value);
+        }
+
+        document.getElementById('chatBtn').addEventListener('click', function() {
+            var cb = document.getElementById('chatWindow'); 
+            cb.style.display = (cb.style.display === 'flex') ? 'none' : 'flex';
+        });
+        document.getElementById('closeChat').addEventListener('click', function() { 
+            document.getElementById('chatWindow').style.display = 'none'; 
+        });
+
+        function voyeMesaj() {
+            var t = document.getElementById('chatInput').value;
+            if(t.trim() !== "") {
+                var cb = document.getElementById('chatBody');
+                cb.innerHTML += '<div style="background:#00205B; color:white; padding:10px; border-radius:5px; margin-bottom:10px; text-align:right;">' + t + '</div>';
+                document.getElementById('chatInput').value = '';
+                setTimeout(function() {
+                    cb.innerHTML += '<div style="background:#e3f2fd; padding:10px; border-radius:5px; margin-bottom:10px;"><strong>Ajan HNG:</strong> N ap reponn ou talè...</div>';
+                    cb.scrollTop = cb.scrollHeight;
+                }, 1000);
+            }
+        }
+    </script>
+
+    <script type="module">
+        // 1. Enpòte fonksyon sekirite Google Firebase yo
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "KLE_API_OU_A_AP_ISIT",
+            authDomain: "non-pwoje-w.firebaseapp.com",
+            projectId: "non-pwoje-w",
+            storageBucket: "non-pwoje-w.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "ID_APLIKASYON_AN_AP_ISIT"
+        };
+
+        // 3. Konfigire aplikasyon an
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- FONKSYON ENSKRIPSYON ---
+        document.getElementById("btn-enskri").addEventListener("click", () => {
+            const imel = document.getElementById("imel-enskri").value;
+            const modpas = document.getElementById("modpas-enskri").value;
+
+            if(imel === "" || modpas === "") {
+                alert("Tanpri, ranpli tout bwat yo!");
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, imel, modpas)
+                .then((userCredential) => {
+                    alert("Felisitasyon! Kont ou a kreye ofisyèlman.");
+                    document.getElementById("imel-enskri").value = "";
+                    document.getElementById("modpas-enskri").value = "";
+                    document.getElementById('authModal').style.display = 'none';
+                })
+                .catch((error) => {
+                    alert("Ekskiz, gen yon erè: " + error.message);
+                });
+        });
+
+        // --- FONKSYON KONEKSYON ---
+        document.getElementById("btn-konekte").addEventListener("click", () => {
+            const imel = document.getElementById("imel-konekte").value;
+            const modpas = document.getElementById("modpas-konekte").value;
+
+            if(imel === "" || modpas === "") {
+                alert("Tanpri, mete imèl ak modpas ou pou w antre!");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, imel, modpas)
+                .then((userCredential) => {
+                    alert("Byenvini! Ou konekte avèk siksè nan sistèm HNG a.");
+                    document.getElementById("imel-konekte").value = "";
+                    document.getElementById("modpas-konekte").value = "";
+                    document.getElementById('authModal').style.display = 'none';
+                })
+                .catch((error) => {
+                    alert("Imèl oswa modpas ou an pa bon. Tcheke yo epi eseye ankò.");
+                });
+        });
+    </script>
+    <scripttype="module"=//
+></script>
+     </script>
+        </body>
+  </html>
+
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
